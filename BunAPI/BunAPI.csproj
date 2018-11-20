@@ -2,6 +2,22 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>A simple API for file management on BunnyCDN's file storage.
+https://bunnycdn.com</Description>
+    <Authors>bloomtom</Authors>
+    <Company>bloomtom</Company>
+    <Copyright>MIT</Copyright>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/bloomtom/BunAPI</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/bloomtom/BunAPI</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageId>bloomtom.BunAPI</PackageId>
+    <Version>1.0.0</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
 
 </Project>
