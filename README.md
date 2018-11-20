@@ -16,3 +16,16 @@ Create a new instance of `BunAPI.BunClient` using your API key and a "storage zo
 
 #### Finding Your API Key
 Your API key can be found in your account under "Storage". Open a connection zone, then go to "FTP & API Access". In the online interface the API key is called a password.
+
+## Testing
+To run tests, you'll need to add a file to the project containing test configuration. The file should be `ConnectionInfo.cs` and should be stored under the BunTests directory. The file should contain one class with the following structure:
+```
+namespace BunTests
+{
+    internal static class ConnectionInfo
+    {
+        public static readonly string zone = "yourTestZone";
+        public static readonly string apiKey = "yourTestApiKey";
+    }
+}
+```
