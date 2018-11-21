@@ -9,7 +9,7 @@ using System.Linq;
 namespace BunTests
 {
     [TestClass]
-    public class UnitTests
+    public class IntegrationTests
     {
         private readonly string testFile = $"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} test.test";
         private const string testContent = "Hello, world!";
