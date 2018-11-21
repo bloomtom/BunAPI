@@ -26,6 +26,9 @@ namespace BunTests
     {
         public static readonly string zone = "yourTestZone";
         public static readonly string apiKey = "yourTestApiKey";
+        public static readonly string badZone = "thisshouldntexist.donotcreate";
+        public static readonly string badKey = "notarealkey";
     }
 }
 ```
+The variables `zone` and `apiKey` should be filled in with your testing zone and key respectively. The `badZone` and `badKey` variables can be set to whatever you want as long as they aren't valid.
