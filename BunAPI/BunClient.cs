@@ -10,8 +10,15 @@ using System.Linq;
 
 namespace BunAPI
 {
+    /// <summary>
+    /// Encapsulates an HTTP status code and a data stream for the resource.
+    /// If the status code is 200 (OK) the download operation was started. Close the stream to end it.
+    /// </summary>
     public class StreamResponse
     {
+        /// <summary>
+        /// The download data stream. Data is loaded over the wire as the stream is read.
+        /// </summary>
         public Stream Stream { get; private set; }
         public HttpStatusCode StatusCode { get; private set; }
 
@@ -22,6 +29,9 @@ namespace BunAPI
         }
     }
 
+    /// <summary>
+    /// Encapsulates the result of a file listing operation.
+    /// </summary>
     public class FileListResponse
     {
         public IEnumerable<BunFile> Files { get; private set; }
@@ -34,15 +44,22 @@ namespace BunAPI
         }
     }
 
+    /// <summary>
+    /// A simple client for interfacing with the BunnyCDN REST API.
+    /// </summary>
     public class BunClient
     {
         private const string storageEndpoint = "https://storage.bunnycdn.com";
 
         private readonly string apiKey;
 
-        HttpClient client = new HttpClient();
+        private readonly HttpClient client = new HttpClient();
 
         private string storageZone;
+        /// <summary>
+        /// The storage zone to work with. Storage zones can be created and managed at https://bunnycdn.com/dashboard/storagezones
+        /// The setter of this property automatically encodes the value into a URL safe form for API access.
+        /// </summary>
         public string StorageZone
         {
             get
@@ -56,8 +73,9 @@ namespace BunAPI
         }
 
         /// <summary>
-        /// If true, filenames given to the api and returned from it will be automatically encoded and decoded.
+        /// If true, filenames given to the api and returned from it will be automatically encoded and decoded (for URL safety).
         /// When true, this disables the ability to specify "folders" by using slashes in filenames.
+        /// If you set this false, you will need to manually ensure URL unsafe characters aren't allowed
         /// </summary>
         public bool AutoEncodeFilenames { get; set; } = true;
 
@@ -81,6 +99,7 @@ namespace BunAPI
         /// Returns a list of files stored at the current StorageZone.
         /// This does not recurse into subdirectories.
         /// </summary>
+        /// <returns>Returns 200 OK on success and 401 Unauthorized on failure.</returns>
         public async Task<FileListResponse> ListFiles(CancellationToken cancelToken = default(CancellationToken))
         {
             var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, BuildUri(string.Empty)), HttpCompletionOption.ResponseHeadersRead, cancelToken);
@@ -102,6 +121,7 @@ namespace BunAPI
         /// <summary>
         /// Returns an object containing the status code and a data stream from the given filename target.
         /// </summary>
+        /// <returns>Returns 200 OK on success and 404 NotFound on failure.</returns>
         public async Task<StreamResponse> GetFile(string filename, CancellationToken cancelToken = default(CancellationToken))
         {
             var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, BuildUri(filename)), HttpCompletionOption.ResponseHeadersRead, cancelToken);
@@ -111,6 +131,7 @@ namespace BunAPI
         /// <summary>
         /// Puts the given stream content from position zero to the given filename target. If the file exists, it is overwritten.
         /// </summary>
+        /// <returns>Returns 201 Created on success and 400 BadRequest on failure.</returns>
         public async Task<HttpStatusCode> PutFile(Stream content, string filename, CancellationToken cancelToken = default(CancellationToken))
         {
             content.Position = 0;
@@ -121,6 +142,7 @@ namespace BunAPI
         /// <summary>
         /// Puts a text file with the given content to the given filename target. If the file exists, it is overwritten.
         /// </summary>
+        /// <returns>Returns 201 Created on success and 400 BadRequest on failure.</returns>
         public async Task<HttpStatusCode> PutFile(string content, string filename, CancellationToken cancelToken = default(CancellationToken))
         {
             using (var ms = new MemoryStream())
@@ -135,6 +157,7 @@ namespace BunAPI
         /// <summary>
         /// Deletes the file from the given filename target.
         /// </summary>
+        /// <returns>Returns 200 OK on success and 400 BadRequest on failure.</returns>
         public async Task<HttpStatusCode> DeleteFile(string filename, CancellationToken cancelToken = default(CancellationToken))
         {
             var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, BuildUri(filename)), HttpCompletionOption.ResponseHeadersRead, cancelToken);
