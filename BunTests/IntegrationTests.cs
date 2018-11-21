@@ -20,14 +20,8 @@ namespace BunTests
             var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.zone);
 
             // Write a file.
-            using (var ms = new MemoryStream())
-            using (var writer = new StreamWriter(ms))
-            {
-                writer.Write(testContent);
-                writer.Flush();
-                var writeResponse = client.PutFile(ms, testFile).Result;
-                Assert.AreEqual(HttpStatusCode.Created, writeResponse);
-            }
+            var writeResponse = client.PutFile(testContent, testFile).Result;
+            Assert.AreEqual(HttpStatusCode.Created, writeResponse);
 
             // Check for our file in the file listing.
             var listResponse = client.ListFiles().Result;
@@ -48,6 +42,56 @@ namespace BunTests
             // Test deleting the file.
             var deleteResult = client.DeleteFile(testFile).Result;
             Assert.AreEqual(HttpStatusCode.OK, deleteResult);
+        }
+
+        [TestMethod]
+        public void TestGetExpectNotFound()
+        {
+            var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.zone);
+
+            var badFile = client.GetFile(ConnectionInfo.badZone).Result;
+            Assert.AreEqual(HttpStatusCode.NotFound, badFile.StatusCode);
+        }
+
+        [TestMethod]
+        public void TestDeleteExpectNotFound()
+        {
+            var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.zone);
+
+            var badFile = client.DeleteFile(ConnectionInfo.badZone).Result;
+            Assert.AreEqual(HttpStatusCode.NotFound, badFile);
+        }
+
+        [TestMethod]
+        public void TestBadZone()
+        {
+            var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.badZone);
+
+            var badResult = client.ListFiles().Result;
+            Assert.AreEqual(HttpStatusCode.Unauthorized, badResult.StatusCode);
+            Assert.AreEqual(0, badResult.Files.Count());
+        }
+
+        [TestMethod]
+        public void TestBadPut()
+        {
+            var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.badZone);
+
+            var writeResponse = client.PutFile(testContent, testFile).Result;
+            Assert.AreEqual(HttpStatusCode.Unauthorized, writeResponse);
+        }
+
+        /// <summary>
+        /// This test takes a long time, seemingly because BunnyCDN holds the connection open for a bit when a bad key is given?
+        /// </summary>
+        [TestMethod]
+        public void TestBadKey()
+        {
+            var client = new BunClient(ConnectionInfo.badKey, ConnectionInfo.zone);
+
+            var badResult = client.ListFiles().Result;
+            Assert.AreEqual(HttpStatusCode.Unauthorized, badResult.StatusCode);
+            Assert.AreEqual(0, badResult.Files.Count());
         }
     }
 }

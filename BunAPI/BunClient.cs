@@ -103,25 +103,31 @@ namespace BunAPI
         public async Task<FileListResponse> ListFiles(CancellationToken cancelToken = default(CancellationToken))
         {
             var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, BuildUri(string.Empty)), HttpCompletionOption.ResponseHeadersRead, cancelToken);
-            var files = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<BunFile>>(await result.Content.ReadAsStringAsync());
 
-            // Handle decoding filenames lazily.
-            if (AutoEncodeFilenames)
+            if(result.StatusCode == HttpStatusCode.OK)
             {
-                files = files.Select(x =>
+                var files = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<BunFile>>(await result.Content.ReadAsStringAsync());
+
+                // Handle decoding filenames lazily.
+                if (AutoEncodeFilenames)
                 {
-                    x.ObjectName = HttpUtility.UrlDecode(x.ObjectName);
-                    return x;
-                });
+                    files = files.Select(x =>
+                    {
+                        x.ObjectName = HttpUtility.UrlDecode(x.ObjectName);
+                        return x;
+                    });
+                }
+
+                return new FileListResponse(result.StatusCode, files);
             }
 
-            return new FileListResponse(result.StatusCode, files);
+            return new FileListResponse(result.StatusCode, Enumerable.Empty<BunFile>());
         }
 
         /// <summary>
         /// Returns an object containing the status code and a data stream from the given filename target.
         /// </summary>
-        /// <returns>Returns 200 OK on success and 404 NotFound on failure.</returns>
+        /// <returns>Returns 200 OK on success and 401 Unauthorized or 404 NotFound on failure. The stream is populated regardless, and contains a json message on failure.</returns>
         public async Task<StreamResponse> GetFile(string filename, CancellationToken cancelToken = default(CancellationToken))
         {
             var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, BuildUri(filename)), HttpCompletionOption.ResponseHeadersRead, cancelToken);
@@ -142,7 +148,7 @@ namespace BunAPI
         /// <summary>
         /// Puts a text file with the given content to the given filename target. If the file exists, it is overwritten.
         /// </summary>
-        /// <returns>Returns 201 Created on success and 400 BadRequest on failure.</returns>
+        /// <returns>Returns 201 Created on success and 401 Unauthorized or 400 BadRequest on failure.</returns>
         public async Task<HttpStatusCode> PutFile(string content, string filename, CancellationToken cancelToken = default(CancellationToken))
         {
             using (var ms = new MemoryStream())
@@ -157,7 +163,7 @@ namespace BunAPI
         /// <summary>
         /// Deletes the file from the given filename target.
         /// </summary>
-        /// <returns>Returns 200 OK on success and 400 BadRequest on failure.</returns>
+        /// <returns>Returns 200 OK on success and 404 NotFound, 401 Unauthorized or 400 BadRequest on failure.</returns>
         public async Task<HttpStatusCode> DeleteFile(string filename, CancellationToken cancelToken = default(CancellationToken))
         {
             var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, BuildUri(filename)), HttpCompletionOption.ResponseHeadersRead, cancelToken);
