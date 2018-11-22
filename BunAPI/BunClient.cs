@@ -20,8 +20,16 @@ namespace BunAPI
         /// The download data stream. Data is loaded over the wire as the stream is read.
         /// </summary>
         public Stream Stream { get; private set; }
+        /// <summary>
+        /// The status code returned from BunnyCDN for the operation.
+        /// </summary>
         public HttpStatusCode StatusCode { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="status"></param>
+        /// <param name="stream"></param>
         public StreamResponse(HttpStatusCode status, Stream stream)
         {
             StatusCode = status;
@@ -34,9 +42,20 @@ namespace BunAPI
     /// </summary>
     public class FileListResponse
     {
+        /// <summary>
+        /// A collection of files stored in a distribution group.
+        /// </summary>
         public IEnumerable<BunFile> Files { get; private set; }
+        /// <summary>
+        /// The status code returned from BunnyCDN for the operation.
+        /// </summary>
         public HttpStatusCode StatusCode { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="status"></param>
+        /// <param name="files"></param>
         public FileListResponse(HttpStatusCode status, IEnumerable<BunFile> files)
         {
             StatusCode = status;
@@ -79,6 +98,9 @@ namespace BunAPI
         /// </summary>
         public bool AutoEncodeFilenames { get; set; } = true;
 
+        /// <summary>
+        /// Create a client with a default key and storage zone.
+        /// </summary>
         public BunClient(string apiKey, string storageZone)
         {
             this.apiKey = HttpUtility.UrlEncode(apiKey);
@@ -140,7 +162,10 @@ namespace BunAPI
         /// <returns>Returns 201 Created on success and 400 BadRequest on failure.</returns>
         public async Task<HttpStatusCode> PutFile(Stream content, string filename, CancellationToken cancelToken = default(CancellationToken))
         {
-            content.Position = 0;
+            if (content.CanSeek)
+            {
+                content.Position = 0;
+            }
             var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Put, BuildUri(filename)) { Content = new StreamContent(content) }, HttpCompletionOption.ResponseHeadersRead, cancelToken);
             return result.StatusCode;
         }

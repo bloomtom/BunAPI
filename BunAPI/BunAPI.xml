@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BunAPI</name>
+    </assembly>
+    <members>
+        <member name="T:BunAPI.StreamResponse">
+            <summary>
+            Encapsulates an HTTP status code and a data stream for the resource.
+            If the status code is 200 (OK) the download operation was started. Close the stream to end it.
+            </summary>
+        </member>
+        <member name="P:BunAPI.StreamResponse.Stream">
+            <summary>
+            The download data stream. Data is loaded over the wire as the stream is read.
+            </summary>
+        </member>
+        <member name="P:BunAPI.StreamResponse.StatusCode">
+            <summary>
+            The status code returned from BunnyCDN for the operation.
+            </summary>
+        </member>
+        <member name="M:BunAPI.StreamResponse.#ctor(System.Net.HttpStatusCode,System.IO.Stream)">
+            <summary>
+            
+            </summary>
+            <param name="status"></param>
+            <param name="stream"></param>
+        </member>
+        <member name="T:BunAPI.FileListResponse">
+            <summary>
+            Encapsulates the result of a file listing operation.
+            </summary>
+        </member>
+        <member name="P:BunAPI.FileListResponse.Files">
+            <summary>
+            A collection of files stored in a distribution group.
+            </summary>
+        </member>
+        <member name="P:BunAPI.FileListResponse.StatusCode">
+            <summary>
+            The status code returned from BunnyCDN for the operation.
+            </summary>
+        </member>
+        <member name="M:BunAPI.FileListResponse.#ctor(System.Net.HttpStatusCode,System.Collections.Generic.IEnumerable{BunAPI.BunFile})">
+            <summary>
+            
+            </summary>
+            <param name="status"></param>
+            <param name="files"></param>
+        </member>
+        <member name="T:BunAPI.BunClient">
+            <summary>
+            A simple client for interfacing with the BunnyCDN REST API.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunClient.StorageZone">
+            <summary>
+            The storage zone to work with. Storage zones can be created and managed at https://bunnycdn.com/dashboard/storagezones
+            The setter of this property automatically encodes the value into a URL safe form for API access.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunClient.AutoEncodeFilenames">
+            <summary>
+            If true, filenames given to the api and returned from it will be automatically encoded and decoded (for URL safety).
+            When true, this disables the ability to specify "folders" by using slashes in filenames.
+            If you set this false, you will need to manually ensure URL unsafe characters aren't allowed
+            </summary>
+        </member>
+        <member name="M:BunAPI.BunClient.#ctor(System.String,System.String)">
+            <summary>
+            Create a client with a default key and storage zone.
+            </summary>
+        </member>
+        <member name="M:BunAPI.BunClient.ListFiles(System.Threading.CancellationToken)">
+            <summary>
+            Returns a list of files stored at the current StorageZone.
+            This does not recurse into subdirectories.
+            </summary>
+            <returns>Returns 200 OK on success and 401 Unauthorized on failure.</returns>
+        </member>
+        <member name="M:BunAPI.BunClient.GetFile(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Returns an object containing the status code and a data stream from the given filename target.
+            </summary>
+            <returns>Returns 200 OK on success and 401 Unauthorized or 404 NotFound on failure. The stream is populated regardless, and contains a json message on failure.</returns>
+        </member>
+        <member name="M:BunAPI.BunClient.PutFile(System.IO.Stream,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Puts the given stream content from position zero to the given filename target. If the file exists, it is overwritten.
+            </summary>
+            <returns>Returns 201 Created on success and 400 BadRequest on failure.</returns>
+        </member>
+        <member name="M:BunAPI.BunClient.PutFile(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Puts a text file with the given content to the given filename target. If the file exists, it is overwritten.
+            </summary>
+            <returns>Returns 201 Created on success and 401 Unauthorized or 400 BadRequest on failure.</returns>
+        </member>
+        <member name="M:BunAPI.BunClient.DeleteFile(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Deletes the file from the given filename target.
+            </summary>
+            <returns>Returns 200 OK on success and 404 NotFound, 401 Unauthorized or 400 BadRequest on failure.</returns>
+        </member>
+        <member name="T:BunAPI.BunFile">
+            <summary>
+            A definition for a file stored on BunnyCDN
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.Guid">
+            <summary>
+            The unique identifier given to the file when it was uploaded.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.StorageZoneName">
+            <summary>
+            The storage zone this file resides in.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.Path">
+            <summary>
+            The full "path" for this file using virtual folders.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.ObjectName">
+            <summary>
+            The name of this object. This is the name used for API operations.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.Length">
+            <summary>
+            The length of this file in bytes.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.LastChanged">
+            <summary>
+            The date of the last write operation on this file.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.IsDirectory">
+            <summary>
+            True if this file is actually a directory.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.ServerId">
+            <summary>
+            The BunnyCDN server this file resides on.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.UserId">
+            <summary>
+            The ID for the user who owns this file.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.DateCreated">
+            <summary>
+            The date this file was created.
+            </summary>
+        </member>
+        <member name="P:BunAPI.BunFile.StorageZoneId">
+            <summary>
+            The ID for the storage zone this file resides in.
+            </summary>
+        </member>
+    </members>
+</doc>
