@@ -13,8 +13,8 @@ https://bunnycdn.com</Description>
     <RepositoryUrl>https://github.com/bloomtom/BunAPI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageId>bloomtom.BunAPI</PackageId>
-    <Version>1.0.2</Version>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <Version>1.0.3</Version>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
