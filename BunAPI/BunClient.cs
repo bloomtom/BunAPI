@@ -92,11 +92,10 @@ namespace BunAPI
         }
 
         /// <summary>
-        /// If true, filenames given to the api and returned from it will be automatically encoded and decoded (for URL safety).
-        /// When true, this disables the ability to specify "folders" by using slashes in filenames.
-        /// If you set this false, you will need to manually ensure URL unsafe characters aren't allowed
+        /// If set true, filenames given to the api and returned from it will be automatically encoded and decoded (for URL safety).
+        /// This may mangle your filenames pretty badly though.
         /// </summary>
-        public bool AutoEncodeFilenames { get; set; } = true;
+        public bool AutoEncodeFilenames { get; set; } = false;
 
         /// <summary>
         /// Create a client with a default key and storage zone.

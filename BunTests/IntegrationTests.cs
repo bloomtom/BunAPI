@@ -11,7 +11,7 @@ namespace BunTests
     [TestClass]
     public class IntegrationTests
     {
-        private readonly string testFile = $"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()} test.test";
+        private readonly string testFile = $"{DateTime.Now.ToString("yyyy-MM-dd")} {DateTime.Now.ToShortTimeString()} test.test";
         private const string testContent = "Hello, world!";
 
         [TestMethod]
