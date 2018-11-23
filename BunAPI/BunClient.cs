@@ -74,6 +74,15 @@ namespace BunAPI
 
         private readonly HttpClient client = new HttpClient();
 
+        /// <summary>
+        /// Get or set the timeout for http operations.
+        /// </summary>
+        public TimeSpan Timeout
+        {
+            get { return client.Timeout; }
+            set { client.Timeout = value; }
+        }
+
         private string storageZone;
         /// <summary>
         /// The storage zone to work with. Storage zones can be created and managed at https://bunnycdn.com/dashboard/storagezones
@@ -102,6 +111,7 @@ namespace BunAPI
         /// </summary>
         public BunClient(string apiKey, string storageZone)
         {
+            client.Timeout = TimeSpan.FromHours(4);
             this.apiKey = HttpUtility.UrlEncode(apiKey);
             StorageZone = storageZone;
         }
