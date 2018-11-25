@@ -12,6 +12,33 @@ using HttpProgress;
 namespace BunAPI
 {
     /// <summary>
+    /// Encapsulates an HTTP status code and a data stream for the resource.
+    /// If the status code is 200 (OK) the download operation was started. Close the stream to end it.
+    /// </summary>
+    public class StreamResponse
+    {
+        /// <summary>
+        /// The download data stream. Data is loaded over the wire as the stream is read.
+        /// </summary>
+        public Stream Stream { get; private set; }
+        /// <summary>
+        /// The status code returned from BunnyCDN for the operation.
+        /// </summary>
+        public HttpStatusCode StatusCode { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="status"></param>
+        /// <param name="stream"></param>
+        public StreamResponse(HttpStatusCode status, Stream stream)
+        {
+            StatusCode = status;
+            Stream = stream;
+        }
+    }
+
+    /// <summary>
     /// Encapsulates the result of a file listing operation.
     /// </summary>
     public class FileListResponse
@@ -131,7 +158,7 @@ namespace BunAPI
         }
 
         /// <summary>
-        /// Returns an object containing the status code and a data stream from the given filename target.
+        /// Returns the http status code for a get operation and copies the retrieved content to the given output stream.
         /// </summary>
         /// <param name="filename">The remote file name, including any virtual folders in the path.</param>
         /// <param name="output">The stream to read data into. Must support writing.</param>
@@ -148,6 +175,19 @@ namespace BunAPI
             {
                 return r.StatusCode;
             }
+        }
+
+        /// <summary>
+        /// Returns an object containing the status code and a data stream from the given filename target.
+        /// Since this method returns a stream directly with no copying, copy progress cannot be given.
+        /// </summary>
+        /// <param name="filename">The remote file name, including any virtual folders in the path.</param>
+        /// <param name="cancelToken">A cancel token for aborting the operation.</param>
+        /// <returns>Returns 200 OK on success and 401 Unauthorized or 404 NotFound on failure. The stream is populated regardless, and contains a json message on failure.</returns>
+        public async Task<StreamResponse> GetFile(string filename, CancellationToken cancelToken = default(CancellationToken))
+        {
+            var r = await client.GetAsync(BuildUri(filename), cancelToken);
+            return new StreamResponse(r.StatusCode, await r.Content.ReadAsStreamAsync());
         }
 
         /// <summary>

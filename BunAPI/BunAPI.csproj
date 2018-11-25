@@ -13,10 +13,10 @@ https://bunnycdn.com</Description>
     <RepositoryUrl>https://github.com/bloomtom/BunAPI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageId>bloomtom.BunAPI</PackageId>
-    <Version>1.1.4</Version>
-    <AssemblyVersion>1.1.4.0</AssemblyVersion>
+    <Version>1.1.5</Version>
+    <AssemblyVersion>1.1.5.0</AssemblyVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <FileVersion>1.1.4.0</FileVersion>
+    <FileVersion>1.1.5.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
