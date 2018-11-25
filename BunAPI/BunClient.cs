@@ -7,36 +7,10 @@ using System.Threading;
 using System.Net;
 using System.Collections.Generic;
 using System.Linq;
+using HttpProgress;
 
 namespace BunAPI
 {
-    /// <summary>
-    /// Encapsulates an HTTP status code and a data stream for the resource.
-    /// If the status code is 200 (OK) the download operation was started. Close the stream to end it.
-    /// </summary>
-    public class StreamResponse
-    {
-        /// <summary>
-        /// The download data stream. Data is loaded over the wire as the stream is read.
-        /// </summary>
-        public Stream Stream { get; private set; }
-        /// <summary>
-        /// The status code returned from BunnyCDN for the operation.
-        /// </summary>
-        public HttpStatusCode StatusCode { get; private set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="status"></param>
-        /// <param name="stream"></param>
-        public StreamResponse(HttpStatusCode status, Stream stream)
-        {
-            StatusCode = status;
-            Stream = stream;
-        }
-    }
-
     /// <summary>
     /// Encapsulates the result of a file listing operation.
     /// </summary>
@@ -130,12 +104,13 @@ namespace BunAPI
         /// Returns a list of files stored at the current StorageZone.
         /// This does not recurse into subdirectories.
         /// </summary>
+        /// <param name="cancelToken">A cancel token for aborting the operation.</param>
         /// <returns>Returns 200 OK on success and 401 Unauthorized on failure.</returns>
         public async Task<FileListResponse> ListFiles(CancellationToken cancelToken = default(CancellationToken))
         {
             var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, BuildUri(string.Empty)), HttpCompletionOption.ResponseHeadersRead, cancelToken);
 
-            if(result.StatusCode == HttpStatusCode.OK)
+            if (result.StatusCode == HttpStatusCode.OK)
             {
                 var files = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<BunFile>>(await result.Content.ReadAsStringAsync());
 
@@ -158,45 +133,68 @@ namespace BunAPI
         /// <summary>
         /// Returns an object containing the status code and a data stream from the given filename target.
         /// </summary>
+        /// <param name="filename">The remote file name, including any virtual folders in the path.</param>
+        /// <param name="output">The stream to read data into. Must support writing.</param>
+        /// <param name="progress">A progress callback which will fire on every buffer cycle. Take care not to perform expensive operations or transfer performance will suffer.</param>
+        /// <param name="cancelToken">A cancel token for aborting the operation.</param>
         /// <returns>Returns 200 OK on success and 401 Unauthorized or 404 NotFound on failure. The stream is populated regardless, and contains a json message on failure.</returns>
-        public async Task<StreamResponse> GetFile(string filename, CancellationToken cancelToken = default(CancellationToken))
+        public async Task<HttpStatusCode> GetFile(string filename, Stream output, Action<ICopyProgress> progress = null, CancellationToken cancelToken = default(CancellationToken))
         {
-            var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, BuildUri(filename)), HttpCompletionOption.ResponseHeadersRead, cancelToken);
-            return new StreamResponse(result.StatusCode, await result.Content.ReadAsStreamAsync());
+            if (!output.CanWrite)
+            {
+                throw new ArgumentException("Output stream must be writable.", "output");
+            }
+            using (var r = await client.GetAsync(BuildUri(filename), output, progress, cancelToken))
+            {
+                return r.StatusCode;
+            }
         }
 
         /// <summary>
         /// Puts the given stream content from position zero to the given filename target. If the file exists, it is overwritten.
         /// </summary>
+        /// <param name="content">A binary data stream to write. Must support reading. If the stream can seek, the position is set to zero before starting.</param>
+        /// <param name="filename">The remote file name to store, including any virtual folders in the desired path.</param>
+        /// <param name="startPosition">The postion to seek the stream to before starting. Only takes effect if the stream can seek.</param>
+        /// <param name="progress">A progress callback which will fire on every buffer cycle. Take care not to perform expensive operations or transfer performance will suffer.</param>
+        /// <param name="cancelToken">A cancel token for aborting the operation.</param>
         /// <returns>Returns 201 Created on success and 400 BadRequest on failure.</returns>
-        public async Task<HttpStatusCode> PutFile(Stream content, string filename, CancellationToken cancelToken = default(CancellationToken))
+        public async Task<HttpStatusCode> PutFile(Stream content, string filename, Action<ICopyProgress> progress = null, long startPosition = 0, CancellationToken cancelToken = default(CancellationToken))
         {
             if (content.CanSeek)
             {
-                content.Position = 0;
+                content.Position = startPosition;
             }
-            var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Put, BuildUri(filename)) { Content = new StreamContent(content) }, HttpCompletionOption.ResponseHeadersRead, cancelToken);
-            return result.StatusCode;
+            using (var result = await client.PutAsync(BuildUri(filename), content, progress, 0, cancelToken))
+            {
+                return result.StatusCode;
+            }
         }
 
         /// <summary>
         /// Puts a text file with the given content to the given filename target. If the file exists, it is overwritten.
         /// </summary>
+        /// <param name="content">A string to write to the endpoint. This will be encoded as UTF-8 and sent as a data stream.</param>
+        /// <param name="filename">The remote file name to store, including any virtual folders in the desired path.</param>
+        /// <param name="progress">A progress callback which will fire on every buffer cycle. Take care not to perform expensive operations or transfer performance will suffer.</param>
+        /// <param name="cancelToken">A cancel token for aborting the operation.</param>
         /// <returns>Returns 201 Created on success and 401 Unauthorized or 400 BadRequest on failure.</returns>
-        public async Task<HttpStatusCode> PutFile(string content, string filename, CancellationToken cancelToken = default(CancellationToken))
+        public async Task<HttpStatusCode> PutFile(string content, string filename, Action<ICopyProgress> progress = null, CancellationToken cancelToken = default(CancellationToken))
         {
             using (var ms = new MemoryStream())
             using (var writer = new StreamWriter(ms))
             {
                 writer.Write(content);
                 writer.Flush();
-                return await PutFile(ms, filename);
+                return await PutFile(ms, filename, progress, 0, cancelToken);
             }
         }
 
         /// <summary>
         /// Deletes the file from the given filename target.
         /// </summary>
+        /// <param name="filename">The remote file name, including any virtual folders in the path.</param>
+        /// <param name="cancelToken">A cancel token for aborting the operation.</param>
         /// <returns>Returns 200 OK on success and 404 NotFound, 401 Unauthorized or 400 BadRequest on failure.</returns>
         public async Task<HttpStatusCode> DeleteFile(string filename, CancellationToken cancelToken = default(CancellationToken))
         {

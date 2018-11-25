@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Collections.Generic;
 using System.Linq;
+using HttpProgress;
 
 namespace BunTests
 {
@@ -20,7 +21,11 @@ namespace BunTests
             var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.zone);
 
             // Write a file.
-            var writeResponse = client.PutFile(testContent, testFile).Result;
+            var progress = new Action<ICopyProgress>(x =>
+            {
+                ;
+            });
+            var writeResponse = client.PutFile(testContent, testFile, progress).Result;
             Assert.AreEqual(HttpStatusCode.Created, writeResponse);
 
             // Check for our file in the file listing.
@@ -29,15 +34,18 @@ namespace BunTests
             Assert.IsTrue(listResponse.Files.Where(x => x.ObjectName == testFile).Count() == 1);
 
             // Read back the file.
-            var readResponse = client.GetFile(testFile).Result;
-            Assert.AreEqual(HttpStatusCode.OK, readResponse.StatusCode);
-
-            string fileContent = null;
-            using (var reader = new StreamReader(readResponse.Stream))
+            using (var readStream = new MemoryStream())
             {
-                fileContent = reader.ReadToEnd();
+                var readResponse = client.GetFile(testFile, readStream).Result;
+                Assert.AreEqual(HttpStatusCode.OK, readResponse);
+
+                string fileContent = null;
+                using (var reader = new StreamReader(readStream))
+                {
+                    fileContent = reader.ReadToEnd();
+                }
+                Assert.AreEqual(testContent, fileContent);
             }
-            Assert.AreEqual(testContent, fileContent);
 
             // Test deleting the file.
             var deleteResult = client.DeleteFile(testFile).Result;
@@ -49,8 +57,9 @@ namespace BunTests
         {
             var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.zone);
 
-            var badFile = client.GetFile(ConnectionInfo.badZone).Result;
-            Assert.AreEqual(HttpStatusCode.NotFound, badFile.StatusCode);
+            Stream s = new MemoryStream();
+            var badStatus = client.GetFile(ConnectionInfo.badZone, s).Result;
+            Assert.AreEqual(HttpStatusCode.NotFound, badStatus);
         }
 
         [TestMethod]
