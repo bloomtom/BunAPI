@@ -19,7 +19,7 @@ Your API key can be found in your account under "Storage". Open a connection zon
 
 ## Testing
 To run tests, you'll need to add a file to the project containing test configuration. The file should be `ConnectionInfo.cs` and should be stored under the BunTests directory. The file should contain one class with the following structure:
-```
+```csharp
 namespace BunTests
 {
     internal static class ConnectionInfo
