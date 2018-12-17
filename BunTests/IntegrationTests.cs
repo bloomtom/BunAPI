@@ -53,13 +53,23 @@ namespace BunTests
         }
 
         [TestMethod]
-        public void TestGetExpectNotFound()
+        public void TestGetExpectZoneNotFound()
         {
             var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.zone);
 
             Stream s = new MemoryStream();
             var badStatus = client.GetFile(ConnectionInfo.badZone, s).Result;
             Assert.AreEqual(HttpStatusCode.NotFound, badStatus);
+        }
+
+        [TestMethod]
+        public void TestGetExpectObjectNotFound()
+        {
+            var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.zone);
+
+            Stream s = new MemoryStream();
+            var r = client.GetFile(ConnectionInfo.badZone).Result;
+            Assert.AreEqual(HttpStatusCode.NotFound, r.StatusCode);
         }
 
         [TestMethod]
