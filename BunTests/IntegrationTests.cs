@@ -25,7 +25,7 @@ namespace BunTests
             {
                 ;
             });
-            var writeResponse = client.PutFile(testContent, testFile, progress).Result;
+            var writeResponse = client.PutFile(testContent, testFile, true, progress).Result;
             Assert.AreEqual(HttpStatusCode.Created, writeResponse);
 
             // Check for our file in the file listing.

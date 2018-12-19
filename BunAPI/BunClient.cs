@@ -198,14 +198,15 @@ namespace BunAPI
         /// <param name="startPosition">The postion to seek the stream to before starting. Only takes effect if the stream can seek.</param>
         /// <param name="progress">A progress callback which will fire on every buffer cycle. Take care not to perform expensive operations or transfer performance will suffer.</param>
         /// <param name="cancelToken">A cancel token for aborting the operation.</param>
+        /// <param name="autoDisposeStream">When set true, the content stream will be disposed after successful consumption.</param>
         /// <returns>Returns 201 Created on success and 400 BadRequest on failure.</returns>
-        public async Task<HttpStatusCode> PutFile(Stream content, string filename, Action<ICopyProgress> progress = null, long startPosition = 0, CancellationToken cancelToken = default(CancellationToken))
+        public async Task<HttpStatusCode> PutFile(Stream content, string filename, bool autoDisposeStream = false, Action<ICopyProgress> progress = null, long startPosition = 0, CancellationToken cancelToken = default(CancellationToken))
         {
             if (content.CanSeek)
             {
                 content.Position = startPosition;
             }
-            using (var result = await client.PutAsync(BuildUri(filename), content, progress, 0, cancelToken))
+            using (var result = await client.PutAsync(BuildUri(filename), content, autoDisposeStream, progress, 0, cancelToken))
             {
                 return result.StatusCode;
             }
@@ -218,15 +219,16 @@ namespace BunAPI
         /// <param name="filename">The remote file name to store, including any virtual folders in the desired path.</param>
         /// <param name="progress">A progress callback which will fire on every buffer cycle. Take care not to perform expensive operations or transfer performance will suffer.</param>
         /// <param name="cancelToken">A cancel token for aborting the operation.</param>
+        /// <param name="autoDisposeStream">When set true, the content stream will be disposed after successful consumption.</param>
         /// <returns>Returns 201 Created on success and 401 Unauthorized or 400 BadRequest on failure.</returns>
-        public async Task<HttpStatusCode> PutFile(string content, string filename, Action<ICopyProgress> progress = null, CancellationToken cancelToken = default(CancellationToken))
+        public async Task<HttpStatusCode> PutFile(string content, string filename, bool autoDisposeStream = false, Action<ICopyProgress> progress = null, CancellationToken cancelToken = default(CancellationToken))
         {
             using (var ms = new MemoryStream())
             using (var writer = new StreamWriter(ms))
             {
                 writer.Write(content);
                 writer.Flush();
-                return await PutFile(ms, filename, progress, 0, cancelToken);
+                return await PutFile(ms, filename, autoDisposeStream, progress, 0, cancelToken);
             }
         }
 
