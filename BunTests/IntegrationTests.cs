@@ -25,7 +25,7 @@ namespace BunTests
             {
                 ;
             });
-            var writeResponse = client.PutFile(testContent, testFile, true, progress).Result;
+            var writeResponse = client.PutFile(testContent, testFile, progress).Result;
             Assert.AreEqual(HttpStatusCode.Created, writeResponse);
 
             // Check for our file in the file listing.
@@ -49,6 +49,52 @@ namespace BunTests
 
             // Test deleting the file.
             var deleteResult = client.DeleteFile(testFile).Result;
+            Assert.AreEqual(HttpStatusCode.OK, deleteResult);
+        }
+
+        [TestMethod]
+        public void TestStreamOperations()
+        {
+            var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.zone);
+
+            // Write a file.
+            var progress = new Action<ICopyProgress>(x =>
+            {
+                ;
+            });
+
+            using (var ms = new MemoryStream())
+            using (var writer = new StreamWriter(ms))
+            {
+                writer.Write(testContent);
+                writer.Flush();
+                ms.Position = 0;
+
+                var writeResponse = client.PutFile(ms, testFile, false, progress).Result;
+
+                ms.Position = 0; // Should be able to do this because stream not closed yet.
+                Assert.AreEqual(HttpStatusCode.Created, writeResponse);
+            }
+
+            // Test deleting the file.
+            var deleteResult = client.DeleteFile(testFile).Result;
+            Assert.AreEqual(HttpStatusCode.OK, deleteResult);
+
+            using (var ms = new MemoryStream())
+            using (var writer = new StreamWriter(ms))
+            {
+                writer.Write(testContent);
+                writer.Flush();
+                ms.Position = 0;
+
+                var writeResponse = client.PutFile(ms, testFile, true, progress).Result;
+
+                Assert.ThrowsException<ObjectDisposedException>(() => { ms.Position = 0; }); // Stream should be disposed.
+                Assert.AreEqual(HttpStatusCode.Created, writeResponse);
+            }
+
+            // Test deleting the file.
+            deleteResult = client.DeleteFile(testFile).Result;
             Assert.AreEqual(HttpStatusCode.OK, deleteResult);
         }
 
