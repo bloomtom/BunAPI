@@ -196,17 +196,18 @@ namespace BunAPI
         /// <param name="content">A binary data stream to write. Must support reading. If the stream can seek, the position is set to zero before starting.</param>
         /// <param name="filename">The remote file name to store, including any virtual folders in the desired path.</param>
         /// <param name="startPosition">The postion to seek the stream to before starting. Only takes effect if the stream can seek.</param>
+        /// <param name="expectedContentLength">Allows overriding the use of content.Length for progress calculations.</param>
         /// <param name="progress">A progress callback which will fire on every buffer cycle. Take care not to perform expensive operations or transfer performance will suffer.</param>
         /// <param name="cancelToken">A cancel token for aborting the operation.</param>
         /// <param name="autoDisposeStream">When set true, the content stream will be disposed after successful consumption.</param>
         /// <returns>Returns 201 Created on success and 400 BadRequest on failure.</returns>
-        public async Task<HttpStatusCode> PutFile(Stream content, string filename, bool autoDisposeStream = false, IProgress<ICopyProgress> progress = null, long startPosition = 0, CancellationToken cancelToken = default(CancellationToken))
+        public async Task<HttpStatusCode> PutFile(Stream content, string filename, bool autoDisposeStream = false, IProgress<ICopyProgress> progress = null, CancellationToken cancelToken = default(CancellationToken), long startPosition = 0, long expectedContentLength = 0)
         {
             if (content.CanSeek)
             {
                 content.Position = startPosition;
             }
-            using (var result = await client.PutAsync(BuildUri(filename), content, autoDisposeStream, progress, 0, cancelToken))
+            using (var result = await client.PutAsync(BuildUri(filename), content, autoDisposeStream, progress, expectedContentLength, cancelToken))
             {
                 return result.StatusCode;
             }
@@ -227,7 +228,7 @@ namespace BunAPI
             {
                 writer.Write(content);
                 writer.Flush();
-                return await PutFile(ms, filename, false, progress, 0, cancelToken);
+                return await PutFile(ms, filename, progress: progress, cancelToken: cancelToken);
             }
         }
 
