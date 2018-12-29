@@ -21,7 +21,7 @@ namespace BunTests
             var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.zone);
 
             // Write a file.
-            var progress = new Action<ICopyProgress>(x =>
+            var progress = new NaiveProgress<ICopyProgress>(x =>
             {
                 ;
             });
@@ -58,7 +58,7 @@ namespace BunTests
             var client = new BunClient(ConnectionInfo.apiKey, ConnectionInfo.zone);
 
             // Write a file.
-            var progress = new Action<ICopyProgress>(x =>
+            var progress = new NaiveProgress<ICopyProgress>(x =>
             {
                 ;
             });
