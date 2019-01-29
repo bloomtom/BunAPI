@@ -13,11 +13,12 @@ https://bunnycdn.com</Description>
     <RepositoryUrl>https://github.com/bloomtom/BunAPI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageId>bloomtom.BunAPI</PackageId>
-    <Version>2.3.1</Version>
-    <AssemblyVersion>2.3.1.0</AssemblyVersion>
+    <Version>2.3.2</Version>
+    <AssemblyVersion>2.3.2.0</AssemblyVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <FileVersion>2.3.1.0</FileVersion>
+    <FileVersion>2.3.2.0</FileVersion>
 	<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+	<PackageIconUrl>https://raw.githubusercontent.com/bloomtom/BunAPI/master/bunsharp.png</PackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
