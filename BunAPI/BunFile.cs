@@ -29,7 +29,7 @@ namespace BunAPI
         /// <summary>
         /// The length of this file in bytes.
         /// </summary>
-        public int Length { get; set; }
+        public long Length { get; set; }
         /// <summary>
         /// The date of the last write operation on this file.
         /// </summary>
