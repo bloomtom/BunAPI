@@ -8,18 +8,21 @@ https://bunnycdn.com</Description>
     <Authors>bloomtom</Authors>
     <Company>bloomtom</Company>
     <Copyright></Copyright>
-    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/bloomtom/BunAPI</PackageProjectUrl>
     <RepositoryUrl>https://github.com/bloomtom/BunAPI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageId>bloomtom.BunAPI</PackageId>
-    <Version>2.3.3</Version>
+    <Version>2.3.4</Version>
     <AssemblyVersion>2.3.3.0</AssemblyVersion>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <FileVersion>2.3.3.0</FileVersion>
-	<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-	<PackageIconUrl>https://raw.githubusercontent.com/bloomtom/BunAPI/master/bunsharp.png</PackageIconUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+	<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	<IncludeSymbols>true</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageIconUrl>https://raw.githubusercontent.com/bloomtom/BunAPI/master/bunsharp.png</PackageIconUrl>
+	<PackageIcon>bunsharp.png</PackageIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -31,8 +34,19 @@ https://bunnycdn.com</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="bloomtom.HttpProgress" Version="2.3.1" />
+    <PackageReference Include="bloomtom.HttpProgress" Version="2.3.2" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\bunsharp.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
