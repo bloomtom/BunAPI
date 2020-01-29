@@ -7,8 +7,8 @@
 https://bunnycdn.com</Description>
     <Authors>bloomtom</Authors>
     <Company>bloomtom</Company>
-    <Copyright>MIT</Copyright>
-    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <Copyright></Copyright>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/bloomtom/BunAPI</PackageProjectUrl>
     <RepositoryUrl>https://github.com/bloomtom/BunAPI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -19,6 +19,7 @@ https://bunnycdn.com</Description>
     <FileVersion>2.3.3.0</FileVersion>
 	<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 	<PackageIconUrl>https://raw.githubusercontent.com/bloomtom/BunAPI/master/bunsharp.png</PackageIconUrl>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
