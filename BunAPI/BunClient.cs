@@ -69,7 +69,7 @@ namespace BunAPI
     /// </summary>
     public class BunClient
     {
-        private const string storageEndpoint = "https://storage.bunnycdn.com";
+        private readonly string regionUrl = "https://storage.bunnycdn.com";
 
         private readonly string apiKey;
 
@@ -106,6 +106,14 @@ namespace BunAPI
         /// This may mangle your filenames pretty badly though.
         /// </summary>
         public bool AutoEncodeFilenames { get; set; } = false;
+        
+        /// <summary>
+        /// Create a client with a default key and storage zone, also specifying the whole region url e.g. https://storage.bunnycdn.com.
+        /// </summary>
+        public BunClient(string regionUrl, string apiKey, string storageZone) : this(apiKey, storageZone)
+        {
+            this.regionUrl = regionUrl;
+        }
 
         /// <summary>
         /// Create a client with a default key and storage zone.
@@ -124,7 +132,7 @@ namespace BunAPI
                 path = HttpUtility.UrlEncode(path);
             }
 
-            return $"{storageEndpoint}/{StorageZone}/{path}?AccessKey={apiKey}";
+            return $"{regionUrl}/{StorageZone}/{path}?AccessKey={apiKey}";
         }
 
         /// <summary>
