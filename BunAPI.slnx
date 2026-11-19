@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="BunAPI/BunAPI.csproj" />
+  <Project Path="BunTests/BunTests.csproj" />
+</Solution>
