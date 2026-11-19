@@ -23,6 +23,7 @@ https://bunnycdn.com</Description>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageIconUrl>https://raw.githubusercontent.com/bloomtom/BunAPI/master/bunsharp.png</PackageIconUrl>
 	<PackageIcon>bunsharp.png</PackageIcon>
+	<LangVersion>latestmajor</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -35,11 +36,11 @@ https://bunnycdn.com</Description>
 
   <ItemGroup>
     <PackageReference Include="bloomtom.HttpProgress" Version="2.3.2" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="11.0.100">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
   <ItemGroup>
