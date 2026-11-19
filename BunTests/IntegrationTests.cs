@@ -90,7 +90,7 @@ namespace BunTests
 
                 var writeResponse = client.PutFile(ms, testFile, true, progress).Result;
 
-                Assert.ThrowsException<ObjectDisposedException>(() => { ms.Position = 0; }); // Stream should be disposed.
+                Assert.Throws<ObjectDisposedException>(() => { ms.Position = 0; }); // Stream should be disposed.
                 Assert.AreEqual(HttpStatusCode.Created, writeResponse);
             }
 
